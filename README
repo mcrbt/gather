@@ -1,0 +1,168 @@
+gather - pack all self-written scripts
+
+
+BRIEF DESCRIPTION
+
+"gather" is a small bash script for Linux operating systems intended to collect
+all self-written scripts from your file system. Therefore it need to be able to
+distinguish between scripts that are shipped with your Linux distribution or
+have been installed later, and those you wrote yourself, e.g. to automate tasks.
+
+
+PREAMBLE
+
+When installing software on Linux the relevant files are distributed to specific
+file system locations. Executables may go to "/usr/bin/", libraries may go to
+"/usr/lib/", configuration files may go somewhere under "/etc/", license
+documents, manual pages and other resources may go somewhere under
+"/usr/share/", and so on.
+This is different from installing software on Windows or Mac operating systems
+where all the files are installed to one single directory, e.g. under
+"C:\Program Files (x86)\" on Windows. Here the software looks for files using
+paths relative to the executable.
+
+Linux software is usually installed using a package manager, moving the files
+of the software to the respective locations. However, sometimes required
+software is not available in the official software repositories of your Linux
+distribution. Software downloaded from a website often comes as a "tar"-archive
+containing all the files. Personally, I use a specific file system location for
+software downloaded by a browser and installed the Windows way. Lets call it
+"/usr/local/prg". I then create a symbolic link to the executable in that
+directory in "/usr/local/bin". When I write scripts (e.g. to automate system
+tasks) these are also put under "/usr/local/bin" or symbolically linked from a
+development directory.
+
+
+OPERATION
+
+"gather" now scans the "/usr/local/bin" directory, following symbolic links. If
+an entry is a binary file (e.g. "ELF 64-bit") that file is skipped. If a
+symbolic link leads to a subdirectory of "/usr/local/prg" this file is skipped,
+as well. All ASCII text files are evaluated using the "file" command, manually
+by inspecting the interpreter line at beginning of the file (e.g.
+"#!/bin/bash"), or via its file extension.
+All conforming files will be packed together as a "tar" archive, compressed with
+the "xz" tool and moved to a specified archive location.
+
+
+CONFIGURATION
+
+The archiving directory, as well as the root location for "single directory
+installations" can be configured by editing the variables at the beginning of
+the script "gather.sh" in the marked "CONFIGURATION SECTION", namely "ARLOC" and
+"SINGLE_INST_LOC".
+
+CAUTION: This should be done before executing the script on your system to make
+it work properly!
+
+If you want to put "gather" (or a symbolic link to it) under "/usr/local/bin",
+as well, you can decide whether to include "gather.sh" in the resulting archive,
+or not, by editing the variable "INCLUDE_GATHER". It can be found in the
+"CONFIGURATION SECTION" at the beginning of the script, as well.
+
+Further configuration is not really intended, and should not be necessary.
+However, feel free to adapt the script regarding your needs and use cases.
+
+
+INSTALLATION
+
+In order to install "gather" only two steps are necessary.
+
+1. Clone this repository to a local directory on your system, using:
+
+      $ git clone https://github.com/mcrbt/gather.git
+
+2. Either move the script "gather.sh" (with or without file extension) to
+   "/usr/local/bin", or create a symbolic link in "/usr/local/bin" or
+   "$HOME/bin" to "gather.sh" in your cloning/installation directory.
+
+As "/usr/local/bin" is in the environment variable "PATH" by default, gather
+should then be accessible like any other command. If you want to put it under
+"$HOME/bin" be sure that this directory is in the "PATH" variable, as well. Be
+aware that "gather" tests if you are the root user, where "$HOME/bin" would
+evaluate to "/root/bin".
+
+If you are sure that you want to execute "gather" as non-privileged user you can
+remove or comment the respective line (roughly line 258) in "gather.sh":
+
+      #if [ ! $EUID -eq 0 ]; then echo "please run as root"; exit 1; fi
+
+
+DEPENDENCIES
+
+As "gather" is a BASH script it depends on the existence of various system
+tools. Almost all of this tools should be present on any Linux distribution by
+default. Here is the complete list of tool that must be installed for "gather"
+to work:
+
+      awk, basename, date, file, head, mkdir, mv, perl, readlink, sed, sort,
+      tar, wc, xz
+
+At the beginning "gather" checks whether all these commands are installed on
+your system and are accessible via the environment "PATH" variable.
+The command "which" should also be in the list of dependencies, but as "which"
+is used to check all the other dependencies the would introduce a little
+recursion. ;)
+
+
+EXECUTION
+
+Since "gather" has been moved/copied/symlinked to "/usr/local/bin" or
+"$HOME/bin" which should be contained in your system "PATH" variable you should
+be able to run gather as simple as:
+
+      $ gather
+
+or, in case you did not strip the file name extension:
+
+      $ gather.sh
+
+
+COMMAND LINE INTERFACE
+
+gather [version | license | dependencies | help]
+
+   version | -V | --version
+      print version information
+
+   license | -L | --license
+      print GPLv3 license disclaimer
+
+   dependencies | deps | -D | --deps | --dependencies
+      print list of depandancies
+
+   help | -h | --help | usage | -U | --usage
+      print this usage information
+
+
+VERSION
+
+The current version of "gather" is
+
+      1.3.0
+
+
+LICENSE
+
+This simple BASH script is licensed under the GNU General Public License,
+version 3 (GPLv3), and originally distributed under:
+
+      "https://github.com/mcrbt/gather"
+
+License disclaimer:
+
+gather - gather all self-written scripts
+Copyright (C) 2020  Daniel Haase
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
