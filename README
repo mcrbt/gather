@@ -66,15 +66,19 @@ However, feel free to adapt the script regarding your needs and use cases.
 
 INSTALLATION
 
-In order to install "gather" only two steps are necessary.
+In order to install "gather" only three simple steps are necessary.
 
 1. Clone this repository to a local directory on your system, using:
 
       $ git clone https://github.com/mcrbt/gather.git
 
-2. Either move the script "gather.sh" (with or without file extension) to
-   "/usr/local/bin", or create a symbolic link in "/usr/local/bin" or
+2. Either move/copy the script "gather.sh" (with or without filename extension)
+   to "/usr/local/bin", or create a symbolic link in "/usr/local/bin" or
    "$HOME/bin" to "gather.sh" in your cloning/installation directory.
+
+3. Make the script "gather.sh" (not a symbolic link) executable, using:
+
+      $ chmod 755 gather.sh
 
 As "/usr/local/bin" is in the environment variable "PATH" by default, gather
 should then be accessible like any other command. If you want to put it under
