@@ -18,7 +18,7 @@
 ##
 
 TITLE="gather"
-VERSION="1.3.0"
+VERSION="1.3.1"
 AUTHOR="Daniel Haase"
 CRYEARS="2020"
 COPYRIGHT="copyright (c) $CRYEARS $AUTHOR"
@@ -37,7 +37,6 @@ SINGLE_INST_LOC="/usr/local/prg"
 INCLUDE_GATHER=1
 
 ## END OF CONFIGURATION SECTION
-
 
 ARGS="$@"
 scripts=""
@@ -200,7 +199,7 @@ function is_conform
 
 		## accept several filename extensions
 		case "$ext" in
-			"bash" | "csh" | "fish" | "ksh" | "sh" | "tcsh" | "zsh") ## shell scripts
+			"bash" | "csh" | "fish" | "ksh" | "ps1" | "sh" | "tcsh" | "zsh") ## shell scripts
 				return 0
 				;;
 			"ex" | "e" | "jl" | "js" | "pl" | "purs" | "py" | "rb" | "tcl") ## other scripting languages
@@ -215,7 +214,7 @@ function is_conform
 		local ploc=$(which $type &> /dev/null)
 
 		## test if interpreter is installed and executable
-		if [ "$(basename $type)" == "$ploc" ] && [ -x $type ]; then return 0
+		if [ "$(basename $type)" == "$ploc" ]; then return 0
 		else return 1; fi
 	elif [ "$type" == "Bourne-Again" ]; then return 0 ## Bourne Again shell script (bash)
 	elif [ "$type" == "C" ]; then return 0 ## C shell script (csh)
