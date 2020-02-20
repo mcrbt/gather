@@ -190,7 +190,7 @@ function is_conform
 			ploc=$(which $(basename $type) &> /dev/null)
 
 			## test if interpreter is installed and executable
-			if [ "$type" == "$ploc" ] && [ -x $type ]; then return 0
+			if [ "$type" == "$ploc" ]; then return 0
 			else return 1; fi
 		fi
 
