@@ -18,7 +18,7 @@
 ##
 
 TITLE="gather"
-VERSION="1.3.1"
+VERSION="1.3.2"
 AUTHOR="Daniel Haase"
 CRYEARS="2020"
 COPYRIGHT="copyright (c) $CRYEARS $AUTHOR"
@@ -27,7 +27,7 @@ DATE=$(TZ=Europe/Berlin date +%y%m%d)
 ## START OF CONFIGURATION SECTION
 
 ## archiving location
-ARLOC="/home/daniel/arv/scripts/"
+ARLOC="/home/daniel/arv/script/"
 
 ## install location for single directory software (Windows style)
 SINGLE_INST_LOC="/usr/local/prg"
@@ -46,6 +46,7 @@ function version
 {
 	echo "$TITLE version $VERSION"
 	echo "$COPYRIGHT"
+	echo " - gather all self-written scripts"
 }
 
 ## print GPLv3 license disclaimer
@@ -53,7 +54,7 @@ function license
 {
 	echo ""
 	echo "gather - gather all self-written scripts"
-	echo "Copyright (C) $CRYEARS  $AUTHOR"
+	echo "$COPYRIGHT"
 	echo ""
 	echo "This program is free software: you can redistribute it and/or modify"
 	echo "it under the terms of the GNU General Public License as published by"
@@ -102,7 +103,7 @@ function dependencies
 
 ## test if command $1 is available on the system (i.e. is in $PATH)
 ## returns 0 on success, exits with code 2 on failure
-function check_command
+function checkcmd
 {
 	local C=$1
 	if [ $# -eq 0 ] || [ -z $C ]; then return 0; fi
@@ -111,9 +112,25 @@ function check_command
 	return 0
 }
 
+## exit with code 1 if one dependency in space separated
+## list "$@" is not available
+## see: checkcmd
+function checkcmd_all
+{
+	local cmds=("$@")
+	if [ ${#cmds[@]} -eq 0 ]; then return 0; fi
+
+	for c in "${cmds[@]}"; do
+		if [ -z "$c" ]; then continue; fi
+		checkcmd "$c"
+	done
+
+	return 0
+}
+
 ## handle command line arguments $@
 ## returns 0 on success, exits otherwise
-function command_line
+function cmdline
 {
 	local ARGS="$@"
 	local ARG="$1"
@@ -235,23 +252,11 @@ function is_conform
 }
 
 ## handle command line arguments
-command_line "$ARGS"
+cmdline "$ARGS"
 
 ## check dependencies
-check_command "awk"
-check_command "basename"
-check_command "date"
-check_command "file"
-check_command "head"
-check_command "mkdir"
-check_command "mv"
-check_command "perl"
-check_command "readlink"
-check_command "sed"
-check_command "sort"
-check_command "tar"
-check_command "wc"
-check_command "xz" ## used by tar for compression
+checkcmd_all "awk basename date file head mkdir mv perl \
+	readlink sed sort tar wc xz" ## xz is used by "tar" for compression
 
 ## exit with code 1 if user is not root
 if [ ! $EUID -eq 0 ]; then echo "please run as root"; exit 1; fi
@@ -259,10 +264,7 @@ if [ ! $EUID -eq 0 ]; then echo "please run as root"; exit 1; fi
 ## create archiving directory if it does not exist
 if [ ! -d "$ARLOC" ]; then mkdir -p "$ARLOC"; fi
 
-
-##
-## BEGIN MAIN OPERATION
-##
+## START MAIN OPERATION
 
 ## collect all relevant scripts from /usr/local/bin
 for f in /usr/local/bin/*; do
@@ -278,15 +280,17 @@ if [ -f "${ARLOC}/scripts${DATE}.txz" ]; then
 	echo "file \"scripts${DATE}.txz\" already exists"
 	read -p "replace it? [Y/n] " reply
 
-	if [ ! -z "$reply" ] && [ "$reply" != "y" ] && [ "$reply" != "Y" ] \
-	&& [ "$reply" != "yes" ] && [ "$reply" != "Yes" ] && [ "$reply" != "YES" ]; then
+	if [ ! -z "$reply" ] && [ "$reply" != "y" ] \
+	&& [ "$reply" != "Y" ] && [ "$reply" != "yes" ] \
+	&& [ "$reply" != "Yes" ] && [ "$reply" != "YES" ]; then
 		echo "no scripts archived"
 		exit 0
 	fi
 fi
 
 ## create archive
-tar cJf "scripts${DATE}.txz" --exclude-backups --transform='s/.*\///g' $scripts &> /dev/null
+tar cJf "scripts${DATE}.txz" --exclude-backups --transform='s/.*\///g' \
+	$scripts &> /dev/null
 
 ## move archive to respective location
 mv "scripts${DATE}.txz" $ARLOC
