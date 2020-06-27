@@ -105,14 +105,14 @@ function dependencies
 ## returns 0 on success, exits with code 2 on failure
 function checkcmd
 {
-	local C=$1
-	if [ $# -eq 0 ] || [ -z $C ]; then return 0; fi
-	which $C &> /dev/null
-	if [ $? -ne 0 ]; then echo "command \"$C\" not found"; exit 2; fi
+	local c="$1"
+	if [ $# -eq 0 ] || [ -z "$c" ]; then return 0; fi
+	which "$c" &> /dev/null
+	if [ $? -ne 0 ]; then echo "command \"$c\" not found"; exit 2; fi
 	return 0
 }
 
-## exit with code 1 if one dependency in space separated
+## exit with code 2 if one dependency in space separated
 ## list "$@" is not available
 ## see: checkcmd
 function checkcmd_all
@@ -255,8 +255,9 @@ function is_conform
 cmdline "$ARGS"
 
 ## check dependencies
-checkcmd_all "awk basename date file head mkdir mv perl \
-	readlink sed sort tar wc xz" ## xz is used by "tar" for compression
+DEPS="awk basename date file head mkdir mv perl readlink \
+sed sort tar wc xz" ## xz is used by "tar" for compression
+checkcmd_all $DEPS
 
 ## exit with code 1 if user is not root
 if [ ! $EUID -eq 0 ]; then echo "please run as root"; exit 1; fi
